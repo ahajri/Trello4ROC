@@ -1,7 +1,10 @@
 package com.roc.trello.controller;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
 
+import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +29,7 @@ public class TrelloController extends AController {
 	private DmsService dmsService;
 
 	/**
-	 * hT5Kue8j
+	 * 
 	 * 
 	 * @param cardId
 	 * @return list of card members
@@ -37,25 +40,19 @@ public class TrelloController extends AController {
 			throws RestException {
 		try {
 
-		/*	CompletableFuture<HashMap<String, String>> futureDetails = trelloService.getBoardDetailAsync(boardId,
-					writerName, applicationKey, accessToken).thenApply(d -> {
-				 try {
-					dmsService.generateDoc(d);
-					 return new ResponseEntity<HashMap<String, String>>( HttpStatus.OK);
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (Docx4JException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				
+			CompletableFuture<HashMap<String, String>> futureDetails = trelloService.getBoardDetailAsync(boardId,
+					writerName, applicationKey, accessToken);
+
+			futureDetails.thenApplyAsync(d -> {
+
+				dmsService.generateDoc(d);
+				return new ResponseEntity<HashMap<String, String>>(HttpStatus.OK);
 
 			}).exceptionally(e -> {
 				final HashMap<String, String> errorMap = new HashMap<>();
 				errorMap.put("errorMsg", e.getMessage());
 				return new ResponseEntity<HashMap<String, String>>(errorMap, HttpStatus.INTERNAL_SERVER_ERROR);
-			});*/
+			});
 
 			return new ResponseEntity<HashMap<String, String>>(HttpStatus.OK);
 		} catch (Exception e) {
@@ -83,7 +80,6 @@ public class TrelloController extends AController {
 	public ResponseEntity<Void> getBoardDetailsDoc(@PathVariable(name = "boardId") String boardId)
 			throws RestException {
 		try {
-			
 
 			HashMap<String, String> details = trelloService.getBoardDetail(boardId, writerName, applicationKey,
 					accessToken);
