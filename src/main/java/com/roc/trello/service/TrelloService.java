@@ -26,9 +26,14 @@ import com.julienvey.trello.impl.TrelloImpl;
 import com.roc.trello.enums.BoardKeyEnum;
 import com.roc.trello.model.RocCard;
 import com.roc.trello.model.RocList;
+import com.roc.trello.utils.TranslationUtils;
 
 @Service
 public class TrelloService {
+
+	private static final String DURATION_TIME_PATTERN = "HH:mm:ss";
+
+	private static final String ID_BOARD_KEY = "idBoard";
 
 	protected static final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-YYYY");
 
@@ -63,14 +68,11 @@ public class TrelloService {
 	 * @param accessToken
 	 * @return map board details
 	 */
-	public HashMap<String, String> getBoardDetail(String boardId, final String writerName, final String applicationKey,
-			final String accessToken) {
+	public HashMap<String, String> getBoardDetail(final String boardId, final String writerName,
+			final String applicationKey, final String accessToken) {
 		long startTime = System.currentTimeMillis();
 
 		Trello trelloApi = new TrelloImpl(applicationKey, accessToken);
-
-		
-		
 		Board board = trelloApi.getBoard(boardId);
 
 		List<String> members = new ArrayList<>();
@@ -79,13 +81,13 @@ public class TrelloService {
 			members.add(m.getFullName());
 		});
 
-		String projectTitle = board.getName();
+		final String projectTitle = board.getName();
 
-		Argument problemsCardNameArg = new Argument("", "");
+		final Argument anyArg = new Argument("", "");
 
-		List<TList> lists = board.fetchLists(problemsCardNameArg);
+		final List<TList> lists = board.fetchLists(anyArg);
 
-		Map<String, RocList> rocListMap = new HashMap<>();
+		final Map<String, RocList> rocListMap = new HashMap<>();
 
 		lists.stream().forEach(tl -> {
 			RocList rocList = new RocList();
@@ -95,7 +97,7 @@ public class TrelloService {
 
 		});
 
-		List<Card> cards = board.fetchCards(new Argument("idBoard", boardId));
+		List<Card> cards = board.fetchCards(new Argument(ID_BOARD_KEY, boardId));
 
 		cards.stream().forEach(c -> {
 
@@ -105,36 +107,36 @@ public class TrelloService {
 			rocCard.setIdList(c.getIdList());
 			rocCard.setCardName(c.getName());
 
-			c.getActions(new Argument("", "")).stream().forEach(a -> {
+			c.getActions(anyArg).stream().forEach(a -> {
 				String text = a.getData().getText();
-				//String language = TranslationUtils.detectLanguage(text);
-					rocCard.addAction(text);
+				String language = TranslationUtils.detectLanguage(text);
+				//System.out.println("Detected language: "+language);
+				rocCard.addAction(text);
 
 			});
 
 			rocListMap.get(c.getIdList()).addCard(rocCard);
 		});
 
-		HashMap<String, String> details = new HashMap<>();
+		final HashMap<String, String> details = new HashMap<>();
 
 		details.put(BoardKeyEnum.DATE.name(), sdf.format(new Date()));
 		details.put(BoardKeyEnum.PROJECT_TITLE.name(), projectTitle);
-		details.put(BoardKeyEnum.DESCRIPTION.name(), board.getDesc());
 		details.put(BoardKeyEnum.WRITER_NAME.name(), writerName);
 		details.put(BoardKeyEnum.MEMBERS.name(), StringUtils.arrayToCommaDelimitedString(members.toArray()));
 		details.put(BoardKeyEnum.DOC_CONTENT.name(), gson.toJson(rocListMap));
 
-		//System.out.println(details.toString());
-		
+		// System.out.println(details.toString());
+
 		long millsDiff = System.currentTimeMillis() - startTime;
 
 		Duration d = Duration.ofMillis(millsDiff);
 
-		String durationTime = LocalTime.MIDNIGHT.plus(d).format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+		String durationTime = LocalTime.MIDNIGHT.plus(d).format(DateTimeFormatter.ofPattern(DURATION_TIME_PATTERN));
+		
 		System.out.println("Execution time ====>" + durationTime);
+		
 		return details;
 	}
-
-	
 
 }

@@ -4,9 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
@@ -17,12 +18,18 @@ import org.docx4j.wml.ContentAccessor;
 import org.docx4j.wml.Text;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.roc.trello.enums.BoardKeyEnum;
+import com.roc.trello.model.BoardDataSource;
+import com.roc.trello.model.RocList;
+import com.roc.trello.utils.JSONUtils;
+
 @Service("dmsService")
 public class DmsService {
 
-	private WordprocessingMLPackage getTemplate(String name) throws Docx4JException, FileNotFoundException {
-		WordprocessingMLPackage template = WordprocessingMLPackage.load(new FileInputStream(new File(name)));
-		
+	private WordprocessingMLPackage getTemplate(String templatePath) throws Docx4JException, FileNotFoundException {
+		WordprocessingMLPackage template = WordprocessingMLPackage.load(new FileInputStream(new File(templatePath)));
+
 		return template;
 	}
 
@@ -30,18 +37,26 @@ public class DmsService {
 			throws IOException, Docx4JException {
 		File f = new File(target);
 		f.createNewFile();
-		System.out.println("##############" + f.getPath());
 		template.save(f);
 
 	}
 
-	private void replacePlaceholder(WordprocessingMLPackage template, String name, String placeholder) {
+	/**
+	 * 
+	 * @param template
+	 * @param name
+	 * @param placeholder
+	 * @throws UnsupportedEncodingException
+	 */
+	private void replacePlaceholder(WordprocessingMLPackage template, String name, String placeholder)
+			throws UnsupportedEncodingException {
 		List<Object> texts = getAllElementFromObject(template.getMainDocumentPart(), Text.class);
 
 		for (Object text : texts) {
 			Text textElement = (Text) text;
-			//System.out.println(placeholder+" , Value ===> " + textElement.getValue());
-			if (textElement.getValue().equals(placeholder)) {
+
+			if (textElement.getValue().trim().equals(placeholder.trim())) {
+				System.out.println(placeholder + " , Value ===> " + textElement.getValue());
 				textElement.setValue(name);
 			}
 		}
@@ -74,16 +89,41 @@ public class DmsService {
 
 		WordprocessingMLPackage template;
 		try {
-			template = getTemplate("D:\\DEV\\Spring\\workspace\\Trello4ROC\\src\\main\\resources\\Template.docx");
-			
-			System.out.println(details);
-			
-			details.entrySet().forEach(entry -> {
-				replacePlaceholder(template, entry.getValue(), entry.getKey());
-			});;
-			
-			writeDocxToStream(template, "D:\\DEV\\Spring\\workspace\\Trello4ROC\\generated\\"+ details.get("PROJECT_TITLE")+".docx");
-		} catch (Docx4JException |IOException e) {
+			String templatePath = DmsService.class.getClassLoader().getResource("Template.docx").getFile();
+			template = getTemplate(templatePath);
+
+			// System.out.println(details);
+
+			BoardDataSource dataSource = new BoardDataSource();
+			dataSource.setDATE(details.get(BoardKeyEnum.DATE.name()));
+			dataSource.setMEMBERS(details.get(BoardKeyEnum.MEMBERS.name()));
+			dataSource.setPROJECT_TITLE(details.get(BoardKeyEnum.PROJECT_TITLE.name()));
+			dataSource.setWRITER_NAME(details.get(BoardKeyEnum.WRITER_NAME.name()));
+
+			HashMap<String, LinkedHashMap<String, Object>> docContent = new ObjectMapper()
+					.readValue(details.get(BoardKeyEnum.DOC_CONTENT.name()), HashMap.class);
+
+			System.out.println("########DOC_CONTENT#####" + docContent.toString());
+
+			docContent.entrySet().forEach(entry -> {
+
+				String key = entry.getKey();
+				LinkedHashMap<String, Object> value = entry.getValue();
+				value.entrySet().forEach(cardEntry -> {
+					try {
+						replacePlaceholder(template, String.valueOf(cardEntry.getValue()), cardEntry.getKey());
+					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					}
+				});
+
+			});
+			;
+
+			writeDocxToStream(template,
+					System.getProperty("user.dir") + "\\generated\\" + details.get("PROJECT_TITLE") + ".docx");
+
+		} catch (Docx4JException | IOException e) {
 			e.printStackTrace();
 		}
 
