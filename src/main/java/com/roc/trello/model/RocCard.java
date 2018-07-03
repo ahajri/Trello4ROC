@@ -52,7 +52,7 @@ public class RocCard {
 
 	@Override
 	public String toString() {
-		return "RocCard [cardName=" + cardName + ", actions=" + actions + "]";
+		return "RocCard [cardName=" + cardName + ", actions=" + actions.toString() + "]";
 	}
 	
 	
