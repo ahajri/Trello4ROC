@@ -1,10 +1,14 @@
 package com.roc.trello.controller;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 
-import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +18,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.roc.trello.exception.RestException;
 import com.roc.trello.service.DmsService;
 import com.roc.trello.service.TrelloService;
+import com.roc.trello.utils.BoardUtils;
 
 @RestController
-@RequestMapping("/api/v1/trello4carthage")
+@RequestMapping("/trello4roc")
 public class TrelloController extends AController {
 
 	@Autowired
@@ -35,7 +43,7 @@ public class TrelloController extends AController {
 	 * @return list of card members
 	 * @throws RestException
 	 */
-	@RequestMapping(value = "/board/details/async/{boardId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/b/details/async/{boardId}", method = RequestMethod.GET)
 	public ResponseEntity<HashMap<String, String>> getBoardDetailsAsync(@PathVariable(name = "boardId") String boardId)
 			throws RestException {
 		try {
@@ -61,12 +69,16 @@ public class TrelloController extends AController {
 		}
 	}
 
-	@RequestMapping(value = "/board/details/{boardId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/b/details/{boardId}", method = RequestMethod.GET)
 	public ResponseEntity<HashMap<String, String>> getBoardDetails(@PathVariable(name = "boardId") String boardId)
 			throws RestException {
 		try {
 
-			HashMap<String, String> details = trelloService.getBoardDetail(boardId, writerName, applicationKey,
+			String idBoard = BoardUtils.getBordId(boardId,applicationKey,accessToken);
+
+			System.out.println(boardId + "####" + idBoard);
+
+			HashMap<String, String> details = trelloService.getBoardDetail(idBoard, writerName, applicationKey,
 					accessToken);
 
 			return new ResponseEntity<HashMap<String, String>>(details, HttpStatus.OK);
@@ -76,12 +88,14 @@ public class TrelloController extends AController {
 		}
 	}
 
-	@RequestMapping(value = "/board/details/{boardId}/doc", method = RequestMethod.GET)
+	@RequestMapping(value = "/b/{boardId}/doc", method = RequestMethod.GET)
 	public ResponseEntity<Void> getBoardDetailsDoc(@PathVariable(name = "boardId") String boardId)
 			throws RestException {
 		try {
+			String idBoard = BoardUtils.getBordId(boardId,applicationKey,accessToken);
 
-			HashMap<String, String> details = trelloService.getBoardDetail(boardId, writerName, applicationKey,
+
+			HashMap<String, String> details = trelloService.getBoardDetail(idBoard, writerName, applicationKey,
 					accessToken);
 
 			dmsService.generateDoc(details);
