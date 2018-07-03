@@ -23,6 +23,8 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+/src/main/resources/Trello4ROC-Translator-d0ae98543331.json
+/src/main/resources/application.properties
 
 ### Application ###
 /generated/**

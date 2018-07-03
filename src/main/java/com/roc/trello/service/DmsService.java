@@ -27,6 +27,8 @@ import com.roc.trello.utils.JSONUtils;
 @Service("dmsService")
 public class DmsService {
 
+	private static final String TEMPLATE_NAME = "Template.docx";
+
 	private WordprocessingMLPackage getTemplate(String templatePath) throws Docx4JException, FileNotFoundException {
 		WordprocessingMLPackage template = WordprocessingMLPackage.load(new FileInputStream(new File(templatePath)));
 
@@ -89,7 +91,7 @@ public class DmsService {
 
 		WordprocessingMLPackage template;
 		try {
-			String templatePath = DmsService.class.getClassLoader().getResource("Template.docx").getFile();
+			String templatePath = DmsService.class.getClassLoader().getResource(TEMPLATE_NAME).getFile();
 			template = getTemplate(templatePath);
 
 			// System.out.println(details);
@@ -100,6 +102,11 @@ public class DmsService {
 			dataSource.setPROJECT_TITLE(details.get(BoardKeyEnum.PROJECT_TITLE.name()));
 			dataSource.setWRITER_NAME(details.get(BoardKeyEnum.WRITER_NAME.name()));
 
+			replacePlaceholder(template, String.valueOf(dataSource.getDATE()), BoardKeyEnum.DATE.name());
+			replacePlaceholder(template, String.valueOf(dataSource.getMEMBERS()), BoardKeyEnum.MEMBERS.name());
+			replacePlaceholder(template, String.valueOf(dataSource.getPROJECT_TITLE()), BoardKeyEnum.PROJECT_TITLE.name());
+			replacePlaceholder(template, String.valueOf(dataSource.getWRITER_NAME()), BoardKeyEnum.WRITER_NAME.name());
+			
 			HashMap<String, LinkedHashMap<String, Object>> docContent = new ObjectMapper()
 					.readValue(details.get(BoardKeyEnum.DOC_CONTENT.name()), HashMap.class);
 
