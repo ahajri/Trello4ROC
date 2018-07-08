@@ -21,7 +21,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
+import org.docx4j.openpackaging.parts.WordprocessingML.StyleDefinitionsPart;
 import org.docx4j.wml.ContentAccessor;
+import org.docx4j.wml.Style;
 import org.docx4j.wml.Text;
 import org.springframework.http.codec.multipart.SynchronossPartHttpMessageReader;
 import org.springframework.stereotype.Service;
@@ -76,18 +78,34 @@ public class DmsService {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void insertListParagraph(WordprocessingMLPackage template, HashMap<String, Object> tList) {
 		MainDocumentPart mdp = template.getMainDocumentPart();
 
+		StyleDefinitionsPart sdp = mdp.getStyleDefinitionsPart();
+		List<Style> styleList = sdp.getJaxbElement().getStyle();
+		for (Style style : styleList) {
+			System.out.println("###Style: " + style.getStyleId());
+		}
+		
 		String listName = (String) tList.get(BoardKeyEnum.listName.name());
-		List<String> cards = (List<String>) tList.get(BoardKeyEnum.cards.name());
+		mdp.addStyledParagraphOfText("RocCardTitle", listName);
+		List<Object> cards = (List<Object>) tList.get(BoardKeyEnum.cards.name());
+		cards.stream().forEach(o -> {
+			LinkedHashMap<String, Object> c = (LinkedHashMap<String, Object>)o;
+			mdp.addStyledParagraphOfText("CardNameTitle", (String) c.get("cardName"));
+			((List<String>)c.get("actions")).stream().forEach(a -> {
+				mdp.addStyledParagraphOfText("CardAction", a);
+			});
+			
+		});
 		
-		mdp.addStyledParagraphOfText("Title-Inserted",
-				"Select all, then hit F9 in Word to see your pictures, or programmatically add them first");
+		/*mdp.addStyledParagraphOfText("RocCardTitleCar", "Select all, RocCardTitleCar");
 
-		mdp.createParagraphOfText("simple field:");
-		
-		mdp.createParagraphOfText("complex field:");
+		mdp.addStyledParagraphOfText("RocCardTitle", "Select all, RocCardTitle");
+
+		mdp.createParagraphOfText("simple field:");*/
+
 	}
 
 	/**
@@ -113,6 +131,10 @@ public class DmsService {
 		return result;
 	}
 
+	/**
+	 * 
+	 * @param details
+	 */
 	public void generateDoc(HashMap<String, String> details) {
 
 		WordprocessingMLPackage template;
@@ -143,25 +165,27 @@ public class DmsService {
 			listMap.values().stream().forEach(tList -> {
 				insertListParagraph(template, tList);
 			});
-			/*listMap.values().stream().forEach(tList -> {
-				System.out.println("##List =====> " + tList.get("listName"));
-				replacePlaceholder(template, String.valueOf(tList.get("listName")), BoardKeyEnum.listName.name());
-				((List<HashMap<String, Object>>) tList.get("cards")).stream().forEach(c -> {
-
-					replacePlaceholder(template, String.valueOf(c.get("cardName")), "cardName");
-
-					List<String> actions = (List<String>) c.get("actions");
-
-					System.out.println("###actions###" + actions.toString());
-
-					final StringBuilder sb = new StringBuilder();
-
-					actions.stream().forEach(a -> sb.append(a).append("\n"));
-
-					replacePlaceholder(template, sb.toString(), "actions");
-				});
-
-			});*/
+			/*
+			 * listMap.values().stream().forEach(tList -> {
+			 * System.out.println("##List =====> " + tList.get("listName"));
+			 * replacePlaceholder(template, String.valueOf(tList.get("listName")),
+			 * BoardKeyEnum.listName.name()); ((List<HashMap<String, Object>>)
+			 * tList.get("cards")).stream().forEach(c -> {
+			 * 
+			 * replacePlaceholder(template, String.valueOf(c.get("cardName")), "cardName");
+			 * 
+			 * List<String> actions = (List<String>) c.get("actions");
+			 * 
+			 * System.out.println("###actions###" + actions.toString());
+			 * 
+			 * final StringBuilder sb = new StringBuilder();
+			 * 
+			 * actions.stream().forEach(a -> sb.append(a).append("\n"));
+			 * 
+			 * replacePlaceholder(template, sb.toString(), "actions"); });
+			 * 
+			 * });
+			 */
 
 			/*
 			 * Iterator<Entry<String, RocList>> tListIterator =
