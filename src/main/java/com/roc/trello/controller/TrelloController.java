@@ -9,6 +9,9 @@ import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +47,7 @@ public class TrelloController extends AController {
 	 * @throws RestException
 	 */
 	@RequestMapping(value = "/b/details/async/{boardId}", method = RequestMethod.GET)
-	public ResponseEntity<HashMap<String, String>> getBoardDetailsAsync(@PathVariable(name = "boardId") String boardId)
+	public ResponseEntity<HashMap<String, String>> getBoardDetailsAsync(@PathVariable(name = "boardId") String boardId,HttpServletResponse response)
 			throws RestException {
 		try {
 
@@ -70,7 +73,7 @@ public class TrelloController extends AController {
 	}
 
 	@RequestMapping(value = "/b/details/{boardId}", method = RequestMethod.GET)
-	public ResponseEntity<HashMap<String, String>> getBoardDetails(@PathVariable(name = "boardId") String boardId)
+	public ResponseEntity<HashMap<String, String>> getBoardDetails(@PathVariable(name = "boardId") String boardId,HttpServletResponse response)
 			throws RestException {
 		try {
 
@@ -89,7 +92,7 @@ public class TrelloController extends AController {
 	}
 
 	@RequestMapping(value = "/b/{boardId}/doc", method = RequestMethod.GET)
-	public ResponseEntity<Void> getBoardDetailsDoc(@PathVariable(name = "boardId") String boardId)
+	public ResponseEntity<Void> getBoardDetailsDoc(@PathVariable(name = "boardId") String boardId,HttpServletRequest request,HttpServletResponse response)
 			throws RestException {
 		try {
 			String idBoard = BoardUtils.getBordId(boardId,applicationKey,accessToken);

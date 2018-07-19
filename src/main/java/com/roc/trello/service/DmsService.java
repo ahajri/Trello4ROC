@@ -87,24 +87,27 @@ public class DmsService {
 		for (Style style : styleList) {
 			System.out.println("###Style: " + style.getStyleId());
 		}
-		
+
 		String listName = (String) tList.get(BoardKeyEnum.listName.name());
 		mdp.addStyledParagraphOfText("RocCardTitle", listName);
 		List<Object> cards = (List<Object>) tList.get(BoardKeyEnum.cards.name());
 		cards.stream().forEach(o -> {
-			LinkedHashMap<String, Object> c = (LinkedHashMap<String, Object>)o;
+			LinkedHashMap<String, Object> c = (LinkedHashMap<String, Object>) o;
 			mdp.addStyledParagraphOfText("CardNameTitle", (String) c.get("cardName"));
-			((List<String>)c.get("actions")).stream().forEach(a -> {
+			((List<String>) c.get("actions")).stream().forEach(a -> {
 				mdp.addStyledParagraphOfText("CardAction", a);
 			});
-			
+
 		});
-		
-		/*mdp.addStyledParagraphOfText("RocCardTitleCar", "Select all, RocCardTitleCar");
 
-		mdp.addStyledParagraphOfText("RocCardTitle", "Select all, RocCardTitle");
-
-		mdp.createParagraphOfText("simple field:");*/
+		/*
+		 * mdp.addStyledParagraphOfText("RocCardTitleCar",
+		 * "Select all, RocCardTitleCar");
+		 * 
+		 * mdp.addStyledParagraphOfText("RocCardTitle", "Select all, RocCardTitle");
+		 * 
+		 * mdp.createParagraphOfText("simple field:");
+		 */
 
 	}
 
@@ -135,6 +138,7 @@ public class DmsService {
 	 * 
 	 * @param details
 	 */
+	@SuppressWarnings("unchecked")
 	public void generateDoc(HashMap<String, String> details) {
 
 		WordprocessingMLPackage template;
@@ -200,33 +204,35 @@ public class DmsService {
 
 			// System.out.println("########DOC_CONTENT#####" + docContent.toString());
 
-			listMap.entrySet().forEach(entry -> {
+			/*
+			 * listMap.entrySet().forEach(entry -> {
+			 * 
+			 * String key = entry.getKey();
+			 * 
+			 * LinkedHashMap<String, Object> trelloList = entry.getValue();
+			 * List<LinkedHashMap> cards = (List<LinkedHashMap>) trelloList.get("cards");
+			 * 
+			 * cards.stream().forEach(c -> { replacePlaceholder(template,
+			 * c.get("cardName").toString(), "cardName");
+			 * replacePlaceholder(template,StringUtils.join(c.get("actions"), ", ") ,
+			 * "actions");
+			 * 
+			 * });
+			 */
 
-				String key = entry.getKey();
-				/*
-				 * LinkedHashMap<String, Object> trelloList = entry.getValue();
-				 * List<LinkedHashMap> cards = (List<LinkedHashMap>) trelloList.get("cards");
-				 * 
-				 * cards.stream().forEach(c -> { replacePlaceholder(template,
-				 * c.get("cardName").toString(), "cardName");
-				 * replacePlaceholder(template,StringUtils.join(c.get("actions"), ", ") ,
-				 * "actions");
-				 * 
-				 * });
-				 */
-
-				/*
-				 * value.entrySet().forEach(cardEntry -> {
-				 * 
-				 * value.entrySet().forEach(list -> { try { System.out.println(list.getKey() +
-				 * "====>" + String.valueOf(list.getValue()));
-				 * 
-				 * } catch (UnsupportedEncodingException e) { e.printStackTrace(); } });
-				 * 
-				 * });
-				 */
-
-			});
+			/*
+			 * value.entrySet().forEach(cardEntry -> {
+			 * 
+			 * value.entrySet().forEach(list -> { try { System.out.println(list.getKey() +
+			 * "====>" + String.valueOf(list.getValue()));
+			 * 
+			 * } catch (UnsupportedEncodingException e) { e.printStackTrace(); } });
+			 * 
+			 * });
+			 * 
+			 * 
+			 * });
+			 */
 			;
 
 			writeDocxToStream(template, System.getProperty("user.dir") + "\\generated\\"

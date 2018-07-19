@@ -18,20 +18,24 @@ public class RestException extends Throwable {
 	private static final long serialVersionUID = -3163423045385689819L;
 	
 	
-	private HttpStatus httpStatus;
-	private String code;
+	  private HttpStatus httpStatus;
+	    private String code;
 
-	public RestException(String message, Exception ex, HttpStatus httpStatus, String code) {
-		super(message,ex);
-		this.httpStatus = httpStatus;
-		this.code = code;
-	}
+	    public RestException(Throwable ex) {
+	        super(ex);
+	    }
 
-	public RestException(String message, Throwable ex, HttpStatus httpStatus, String code) {
-		super(message,ex);
-		this.httpStatus = httpStatus;
-		this.code = code;
-	}
+	    public RestException(String message, Exception ex, HttpStatus httpStatus, String code) {
+	        super(message,ex);
+	        this.httpStatus = httpStatus;
+	        this.code = code;
+	    }
+
+	    public RestException(String message, Throwable ex, HttpStatus httpStatus, String code) {
+	        super(message,ex);
+	        this.httpStatus = httpStatus;
+	        this.code = code;
+	    }
 
 	public HttpStatus getHttpStatus() {
 		return httpStatus;

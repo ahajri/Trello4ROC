@@ -1,12 +1,15 @@
 package com.roc.trello.exception;
 
 import java.io.Serializable;
-import java.util.Optional;
 
 /**
  * REST Error Message
  * 
- * @author ahajri
+ * @author
+ *         <p>
+ * 		ahajri
+ *         </p>
+ *         
  * @version 1
  */
 public class RestError implements Serializable {
@@ -16,52 +19,49 @@ public class RestError implements Serializable {
 	 */
 	private static final long serialVersionUID = -9054040415035607804L;
 
-	private int status;
-	private String msg, moreInfo, code;
+	/**
+	 * HTTP Status
+	 */
+	private int httpStatus;
 
-	public RestError(int status, String code, String msg, Optional<Throwable> moreInfo) {
-		super();
-		this.status = status;
-		this.code = code;
-		this.msg = msg;
-		this.moreInfo = moreInfo.get().getMessage();
+	/**
+	 * Message technique dédiées au développeur
+	 */
+	private String technicalMessage;
+
+	/**
+	 * Message fonctionnel dédiées à l'utilisateur
+	 */
+	private String functionalMessage;
+
+	public RestError(int httpStatus, String technicalMessage, String functionalMessage) {
+		this.httpStatus = httpStatus;
+		this.technicalMessage = technicalMessage;
+		this.functionalMessage = functionalMessage;
 	}
 
-	public int getStatus() {
-		return status;
+	public int getHttpStatus() {
+		return httpStatus;
 	}
 
-	public void setStatus(int status) {
-		this.status = status;
+	public void setHttpStatus(int httpStatus) {
+		this.httpStatus = httpStatus;
 	}
 
-	public String getCode() {
-		return code;
+	public String getTechnicalMessage() {
+		return technicalMessage;
 	}
 
-	public void setCode(String code) {
-		this.code = code;
+	public void setTechnicalMessage(String technicalMessage) {
+		this.technicalMessage = technicalMessage;
 	}
 
-	public String getMsg() {
-		return msg;
+	public String getFunctionalMessage() {
+		return functionalMessage;
 	}
 
-	public void setMsg(String msg) {
-		this.msg = msg;
-	}
-
-	public String getMoreInfo() {
-		return moreInfo;
-	}
-
-	public void setMoreInfo(String moreInfo) {
-		this.moreInfo = moreInfo;
-	}
-
-	@Override
-	public String toString() {
-		return "RestError [status=" + status + ", code=" + code + ", msg=" + msg + ", moreInfo=" + moreInfo + "]";
+	public void setFunctionalMessage(String functionalMessage) {
+		this.functionalMessage = functionalMessage;
 	}
 
 }
