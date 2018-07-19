@@ -14,7 +14,7 @@ import org.apache.http.util.EntityUtils;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class HttpUtils {
+public final class HttpUtils {
 	/**
 	 * 
 	 * @param root

@@ -31,7 +31,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
 	@ExceptionHandler(value = { DuplicateKeyException.class, org.springframework.dao.DuplicateKeyException.class })
 	protected ResponseEntity<Object> handleMongoUnicityConstraintException(RuntimeException ex, WebRequest request) {
-		String bodyOfResponse = "some unique value already tocken";
+		String bodyOfResponse = "some unique value already token";
 		HttpHeaders headers = new HttpHeaders();
 		request.getHeaderNames().forEachRemaining(s -> headers.add(s, request.getHeader(s)));
 		return handleExceptionInternal(ex, bodyOfResponse, headers, HttpStatus.CONFLICT, request);
@@ -58,7 +58,13 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 				IllegalArgumentException argException = (IllegalArgumentException) cause;
 				functionalMessage = argException.getMessage();
 				httpStatus = HttpStatus.BAD_REQUEST;
+			}else {
+				functionalMessage=cause.getMessage();
+				technicalMessage= cause.getClass().getName();
+				httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 			}
+		}else {
+			technicalMessage="Unknow cause";
 		}
 		return response(httpStatus, technicalMessage, functionalMessage);
 	}
