@@ -40,7 +40,7 @@ public class AuthController extends AController {
 			response.addHeader(API_KEY, apiKey);
 			response.addHeader(ROC_TOKEN, token);
 
-		} catch (URISyntaxException | IOException e) {
+		} catch (BusinessException e) {
 			throw new RestException("Authentification erroné", e, HttpStatus.NOT_FOUND, null);
 		}
 		return new ResponseEntity<>(resource, HttpStatus.OK);
@@ -53,19 +53,15 @@ public class AuthController extends AController {
 	public ResponseEntity<HashMap<String, Object>> authenticateUser(@PathVariable(name = "username") String username,
 			HttpServletResponse response,HttpServletRequest request) throws RestException {
 		HashMap<String, Object> resource;
-		System.out.println("##########################################");
 		try {
-			
-			
-			
 			resource = authService.authenticateUser(username);
 			System.out.println("######"+resource.toString());
 			boolean isConfirmed = (boolean) resource.get("confirmed");
 			if (!isConfirmed) {
 				throw new RestException("User not confirmed yet", new BusinessException("User not confirmed yet"),
-						HttpStatus.NOT_FOUND, null);
+						HttpStatus.FORBIDDEN, null);
 			}
-		} catch (URISyntaxException | IOException e) {
+		} catch (BusinessException e) {
 			throw new RestException("Unknown username", e, HttpStatus.NOT_FOUND, null);
 		}
 		

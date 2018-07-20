@@ -1,11 +1,5 @@
 package com.roc.trello.controller;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 
@@ -21,9 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.roc.trello.exception.RestException;
 import com.roc.trello.service.DmsService;
 import com.roc.trello.service.TrelloService;

@@ -12,30 +12,51 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.stereotype.Service;
 
+import com.roc.trello.exception.BusinessException;
 import com.roc.trello.utils.HttpUtils;
 
 @Service
 public class AuthService {
 
-	
-	public HashMap<String, Object> authenticate(String apiKey, String token) throws URISyntaxException, IOException {
+	/**
+	 * Authenticate using apiKey and token
+	 * 
+	 * @param apiKey
+	 * @param token
+	 * @return Map of JSON data
+	 * @throws BusinessException
+	 */
+	public HashMap<String, Object> authenticate(String apiKey, String token) throws BusinessException {
 		String authUrl = "https://api.trello.com/1/members/me/?key=" + apiKey + "&token=" + token;
-		return doGet(authUrl);
-		
-	}
-	
+		try {
+			return doGetWithParams(authUrl, new HashMap<>());
+		} catch (URISyntaxException | IOException e) {
+			throw new BusinessException(e, "Authentication failed ");
+		}
 
-	public HashMap<String, Object> authenticateUser(String username) throws MalformedURLException, ClientProtocolException, URISyntaxException, IOException {
-		String authUrl = "https://api.trello.com/1/members/"+username;
-		//"https://api.trello.com/1/members/anishajri1"
-		return doGet(authUrl);
 	}
-	
-	@SuppressWarnings("unchecked")
-	private HashMap<String, Object> doGet(String authUrl)
+
+	/**
+	 * Authentication by Trello Username
+	 * 
+	 * @param username:
+	 *            Trello username
+	 * @return Map of JSON data
+	 * @throws BusinessException
+	 */
+	public HashMap<String, Object> authenticateUser(String username) throws BusinessException {
+		String authUrl = "https://api.trello.com/1/members/" + username;
+		try {
+			return doGetWithParams(authUrl, new HashMap<>());
+		} catch (URISyntaxException | IOException e) {
+			throw new BusinessException(e, "Authentication failed for user: " + username);
+		}
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	private HashMap<String, Object> doGetWithParams(String authUrl, HashMap<String, Object> params)
 			throws URISyntaxException, MalformedURLException, IOException, ClientProtocolException {
-		HttpUriRequest request;
-		request = new HttpGet(HttpUtils.buildParamUrl(authUrl, new HashMap<>()));
+		HttpUriRequest request = new HttpGet(HttpUtils.buildParamUrl(authUrl, params));
 		HttpResponse response = HttpClientBuilder.create().build().execute(request);
 		return HttpUtils.retrieveResourceFromResponse(response, HashMap.class);
 	}

@@ -53,6 +53,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 				functionalMessage = ((BusinessException) cause).getFunctionalMessage();
 				if (rootCause instanceof EmptyResultDataAccessException) {
 					httpStatus = HttpStatus.NOT_FOUND;
+				}else {
+					httpStatus = ex.getHttpStatus();
 				}
 			} else if (cause instanceof IllegalArgumentException) {
 				IllegalArgumentException argException = (IllegalArgumentException) cause;
